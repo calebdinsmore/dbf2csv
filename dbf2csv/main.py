@@ -26,7 +26,7 @@ class TranslatingDataFieldParser(FieldParser):
                 return float(data)
             except ValueError:
                 logging.debug('Unable to parse bad float in parseF')
-                return 0
+                return None
         else:
             return None
     
@@ -49,7 +49,7 @@ class TranslatingDataFieldParser(FieldParser):
                     return float(data.replace(b',', b'.'))
                 except ValueError:
                     logging.debug('Unable to parse bad float in parseN')
-                    return 0
+                    return None
     
     def parseL(self, field, data):
         """Parse logical field and return True, False or None"""
@@ -64,7 +64,7 @@ class TranslatingDataFieldParser(FieldParser):
             logging.debug('Illegal value for logical field')
             # screw it--I'm returning something anyway. - Caleb
             # raise ValueError(message.format(data))
-            return ''
+            return None
 
     def parseD(self, field, data):
         """Parse date field and return datetime.date or None"""
@@ -74,10 +74,10 @@ class TranslatingDataFieldParser(FieldParser):
             if data.strip(b' 0') == b'':
                 # A record containing only spaces and/or zeros is
                 # a NULL value.
-                return ''
+                return None
             else:
                 logging.debug('Unable to parse garbage date')
-                return ''
+                return None
 
 
 def get_args():
@@ -115,7 +115,7 @@ def __convert(input_file_path, output_file, args):
         DBF returns a unicode string encoded as args.input_encoding.
         We convert that back into bytes and then decode as args.output_encoding.
         """
-        if not isinstance(x, str):
+        if not isinstance(x, str) and x is not None:
             # DBF converts columns into non-str like int, float
             x = str(x)
         return x.encode(args.input_encoding).decode(args.output_encoding)
