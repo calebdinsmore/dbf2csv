@@ -8,13 +8,77 @@ import glob
 import struct
 import logging
 import argparse
+import datetime
 
-from dbfread import DBF
-
-from . import __version__
+from dbfread import DBF, FieldParser
 
 from io import open
 from builtins import str
+
+class TranslatingDataFieldParser(FieldParser):    
+    def parseF(self, field, data):
+        """Parse float field and return float or None"""
+        # In some files * is used for padding.
+        data = data.strip().strip(b'*')
+
+        if data:
+            try:
+                return float(data)
+            except ValueError:
+                logging.debug('Unable to parse bad float in parseF')
+                return None
+        else:
+            return None
+    
+    def parseN(self, field, data):
+        """Parse numeric field (N)
+
+        Returns int, float or None if the field is empty.
+        """
+        # In some files * is used for padding.
+        data = data.strip().strip(b'*')
+
+        try:
+            return int(data)
+        except ValueError:
+            if not data.strip():
+                return None
+            else:
+                # Account for , in numeric fields
+                try: 
+                    return float(data.replace(b',', b'.'))
+                except ValueError:
+                    logging.debug('Unable to parse bad float in parseN')
+                    return None
+    
+    def parseL(self, field, data):
+        """Parse logical field and return True, False or None"""
+        if data in b'TtYy':
+            return True
+        elif data in b'FfNn':
+            return False
+        elif data in b'? ':
+            return None
+        else:
+            # Todo: return something? (But that would be misleading!)
+            logging.debug('Illegal value for logical field')
+            # screw it--I'm returning something anyway. - Caleb
+            # raise ValueError(message.format(data))
+            return None
+
+    def parseD(self, field, data):
+        """Parse date field and return datetime.date or None"""
+        try:
+            return datetime.date(int(data[:4]), int(data[4:6]), int(data[6:8]))
+        except ValueError:
+            if data.strip(b' 0') == b'':
+                # A record containing only spaces and/or zeros is
+                # a NULL value.
+                return None
+            else:
+                logging.debug('Unable to parse garbage date')
+                return None
+
 
 def get_args():
     """Get CLI arguments and options"""
@@ -41,8 +105,6 @@ def get_args():
     parser.add_argument('-e', '--escape-char',
                         default='\\',
                         help='escape char for csv files (default: "\\")')
-    parser.add_argument('--version', action='version',
-                        version='%(prog)s {version}'.format(version=__version__))
     return parser.parse_args()
 
 
@@ -61,7 +123,8 @@ def __convert(input_file_path, output_file, args):
     try:
         input_reader = DBF(input_file_path,
                            encoding=args.input_encoding,
-                           ignore_missing_memofile=True)
+                           ignore_missing_memofile=True,
+                           parserclass=TranslatingDataFieldParser)
 
         output_writer = csv.DictWriter(output_file,
                                    quoting=args.quoting,
