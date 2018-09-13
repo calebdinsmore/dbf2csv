@@ -26,7 +26,7 @@ class TranslatingDataFieldParser(FieldParser):
                 return float(data)
             except ValueError:
                 logging.debug('Unable to parse bad float in parseF')
-                return None
+                return 0
         else:
             return None
     
@@ -49,7 +49,7 @@ class TranslatingDataFieldParser(FieldParser):
                     return float(data.replace(b',', b'.'))
                 except ValueError:
                     logging.debug('Unable to parse bad float in parseN')
-                    return None
+                    return 0
     
     def parseL(self, field, data):
         """Parse logical field and return True, False or None"""
@@ -64,7 +64,7 @@ class TranslatingDataFieldParser(FieldParser):
             logging.debug('Illegal value for logical field')
             # screw it--I'm returning something anyway. - Caleb
             # raise ValueError(message.format(data))
-            return None
+            return ''
 
     def parseD(self, field, data):
         """Parse date field and return datetime.date or None"""
@@ -74,10 +74,10 @@ class TranslatingDataFieldParser(FieldParser):
             if data.strip(b' 0') == b'':
                 # A record containing only spaces and/or zeros is
                 # a NULL value.
-                return None
+                return ''
             else:
                 logging.debug('Unable to parse garbage date')
-                return None
+                return ''
 
 
 def get_args():
