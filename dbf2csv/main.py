@@ -15,7 +15,7 @@ from dbfread import DBF, FieldParser
 from io import open
 from builtins import str
 
-class TranslatingDataFieldParser(FieldParser):    
+class TranslatingDataFieldParser(FieldParser):
     def parseF(self, field, data):
         """Parse float field and return float or None"""
         # In some files * is used for padding.
@@ -29,7 +29,8 @@ class TranslatingDataFieldParser(FieldParser):
                 return None
         else:
             return None
-    
+
+
     def parseN(self, field, data):
         """Parse numeric field (N)
 
@@ -45,12 +46,13 @@ class TranslatingDataFieldParser(FieldParser):
                 return None
             else:
                 # Account for , in numeric fields
-                try: 
+                try:
                     return float(data.replace(b',', b'.'))
                 except ValueError:
                     logging.debug('Unable to parse bad float in parseN')
                     return None
-    
+
+
     def parseL(self, field, data):
         """Parse logical field and return True, False or None"""
         if data in b'TtYy':
@@ -115,7 +117,9 @@ def __convert(input_file_path, output_file, args):
         DBF returns a unicode string encoded as args.input_encoding.
         We convert that back into bytes and then decode as args.output_encoding.
         """
-        if not isinstance(x, str) and x is not None:
+        if x is None:
+           return ''
+        if not isinstance(x, str):
             # DBF converts columns into non-str like int, float
             x = str(x)
         return x.encode(args.input_encoding).decode(args.output_encoding)
