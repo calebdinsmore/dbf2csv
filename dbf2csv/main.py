@@ -135,15 +135,22 @@ def __convert(input_file_path, output_file, args):
                                        fieldnames=[encode_decode(x) for x in input_reader.field_names])
 
         output_writer.writeheader()
+        row_exceptions = 0
         for record in input_reader:
-            row = {encode_decode(k): encode_decode(v) for k, v in record.items()}
-            output_writer.writerow(row)
+            try:
+                row = {encode_decode(k): encode_decode(v) for k, v in record.items()}
+                output_writer.writerow(row)
+            except (UnicodeDecodeError, LookupError):
+                row_exceptions += 1
+                continue
+        if row_exceptions:
+            logging.error('Number of rows skipped during to encoding errors: %d' % row_exceptions)
 
     except (UnicodeDecodeError, LookupError):
-        logging.error('Error: Unknown encoding\n')
+        logging.error('Error: Unknown encoding in header')
         exit(0)
     except UnicodeEncodeError:
-        log.error('Error: Can\'t encode to output encoding: {}\n'.format(
+        logging.error('Error: Can\'t encode to output encoding: {}\n'.format(
             args.to_charset))
         exit(0)
     except struct.error:
