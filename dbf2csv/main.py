@@ -144,7 +144,7 @@ def __convert(input_file_path, output_file, args):
                 row_exceptions += 1
                 continue
         if row_exceptions:
-            logging.error('Number of rows skipped during to encoding errors: %d' % row_exceptions)
+            logging.error('Number of rows skipped due to encoding errors: %d' % row_exceptions)
 
     except (UnicodeDecodeError, LookupError):
         logging.error('Error: Unknown encoding in header')
