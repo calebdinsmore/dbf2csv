@@ -15,6 +15,7 @@ from dbfread import DBF, FieldParser
 from io import open
 from builtins import str
 
+
 class TranslatingDataFieldParser(FieldParser):
     def parseF(self, field, data):
         """Parse float field and return float or None"""
@@ -29,7 +30,6 @@ class TranslatingDataFieldParser(FieldParser):
                 return None
         else:
             return None
-
 
     def parseN(self, field, data):
         """Parse numeric field (N)
@@ -51,7 +51,6 @@ class TranslatingDataFieldParser(FieldParser):
                 except ValueError:
                     logging.debug('Unable to parse bad float in parseN')
                     return None
-
 
     def parseL(self, field, data):
         """Parse logical field and return True, False or None"""
@@ -111,14 +110,13 @@ def get_args():
 
 
 def __convert(input_file_path, output_file, args):
-
     def encode_decode(x):
         """
         DBF returns a unicode string encoded as args.input_encoding.
         We convert that back into bytes and then decode as args.output_encoding.
         """
         if x is None:
-           return ''
+            return ''
         if not isinstance(x, str):
             # DBF converts columns into non-str like int, float
             x = str(x)
@@ -131,25 +129,25 @@ def __convert(input_file_path, output_file, args):
                            parserclass=TranslatingDataFieldParser)
 
         output_writer = csv.DictWriter(output_file,
-                                   quoting=args.quoting,
-                                   escapechar=args.escape_char,
-                                   delimiter=args.delimiter_char,
-                                   fieldnames=[encode_decode(x) for x in input_reader.field_names])
+                                       quoting=args.quoting,
+                                       escapechar=args.escape_char,
+                                       delimiter=args.delimiter_char,
+                                       fieldnames=[encode_decode(x) for x in input_reader.field_names])
 
         output_writer.writeheader()
         for record in input_reader:
-            row = {encode_decode(k):encode_decode(v) for k,v in record.items()}
+            row = {encode_decode(k): encode_decode(v) for k, v in record.items()}
             output_writer.writerow(row)
 
     except (UnicodeDecodeError, LookupError):
-        log.error('Error: Unknown encoding\n')
+        logging.error('Error: Unknown encoding\n')
         exit(0)
     except UnicodeEncodeError:
         log.error('Error: Can\'t encode to output encoding: {}\n'.format(
             args.to_charset))
         exit(0)
     except struct.error:
-        log.error('Error: Bad input file format: {}\n'.format(
+        logging.error('Error: Bad input file format: {}\n'.format(
             os.path.basename(input_file_path))
         )
         exit(0)
