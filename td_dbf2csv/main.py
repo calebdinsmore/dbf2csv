@@ -84,7 +84,7 @@ class TranslatingDataFieldParser(FieldParser):
 def get_args():
     """Get CLI arguments and options"""
     parser = argparse.ArgumentParser(
-        prog='dbf2csv',
+        prog='td-td_dbf2csv',
         description='small utility to convert simple *.DBF files to *.CSV'
     )
     parser.add_argument('input')
