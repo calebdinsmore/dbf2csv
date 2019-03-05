@@ -15,7 +15,7 @@ setup(
         ],
     },
     install_requires=[
-        'dbfread',
+        'td-dbfread',
         'future',
     ]
 )
