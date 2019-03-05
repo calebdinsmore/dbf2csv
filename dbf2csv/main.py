@@ -106,6 +106,9 @@ def get_args():
     parser.add_argument('-e', '--escape-char',
                         default='\\',
                         help='escape char for csv files (default: "\\")')
+    parser.add_argument('-s', '--stop-at-memo-sep',
+                        action='store_true',
+                        help='instruct the reader to stop at the memofile separator byte (\\x1a)')
     return parser.parse_args()
 
 
@@ -126,7 +129,8 @@ def __convert(input_file_path, output_file, args):
         input_reader = DBF(input_file_path,
                            encoding=args.input_encoding,
                            ignore_missing_memofile=True,
-                           parserclass=TranslatingDataFieldParser)
+                           parserclass=TranslatingDataFieldParser,
+                           stop_at_memofile_separator=args.stop_at_memo_sep)
 
         output_writer = csv.DictWriter(output_file,
                                        quoting=args.quoting,

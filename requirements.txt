@@ -1,1 +1,1 @@
-dbfread==2.0.6
+td-dbfread==2.0.8

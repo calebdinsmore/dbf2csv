@@ -3,15 +3,15 @@ from setuptools import setup, find_packages
 from dbf2csv import __version__
 
 setup(
-    name='dbf2csv',
+    name='td_dbf2csv',
     version=__version__,
-    url='https://github.com/akadan47/dbf2csv',
+    url='https://github.com/calebdinsmore/dbf2csv',
     description='Small utility to convert simple *.DBF files to *.CSV',
     packages=find_packages(),
     platforms='any',
     entry_points={
         'console_scripts': [
-            'dbf2csv = dbf2csv.main:main',
+            'td-dbf2csv = dbf2csv.main:main',
         ],
     },
     install_requires=[
